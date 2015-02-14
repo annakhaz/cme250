@@ -1,0 +1,116 @@
+---
+title: "ridge and lasso"
+author: "Anna Khazenzon"
+date: "February 13, 2015"
+output: html_document
+---
+#Ridge Regression and Lasso Tutorial - ISLR
+
+### First prep data
+``` {r prep}
+library(ISLR)
+sum(is.na(Hitters$Salary)) #59 NAs
+Hitters = na.omit(Hitters)
+sum(is.na(Hitters$Salary)) #0; success
+
+x = model.matrix(Salary ~ ., Hitters)[,-1] # model auto transforms qual vars to dummy vars - 
+y = Hitters$Salary
+#important bc glmnet() only takes numerical
+```
+
+####glmnet will be used for both; alpha = 0 -> ridge, alpha = 1 -> lasso
+
+##RIDGE REGRESSION
+
+``` {r}
+library(glmnet)
+grid = 10^seq(10,-2,length=100) # grid gives vals from lambda = 10^10 to 10^-2, covering everything
+#from null model (intercept only) to least squares
+ridge.mod=glmnet(x,y,alpha=0,lambda=grid)
+
+dim(coef(ridge.mod)) #rows = predictors, plus intercept, cols = lambdas
+# expect coef estimates to be smaller (in terms of L2) when large lambda
+
+coef(ridge.mod)[,50] # large lambda - 11498
+coef(ridge.mod)[,60] # small lambda - 705
+
+predict(ridge.mod, s=50, type="coefficients")[1:20,] #calcs coefs for a new lambda = 50
+```
+
+
+#### Make train and test set by randomly selecting a subset between 1 and n
+``` {r}
+set.seed(1)
+train = sample(1:nrow(x), nrow(x)/2)
+test = (-train)
+y.test = y[test]
+```
+
+#### Fit ridge reg model on training, evaluate MSE, lambda=4
+``` {r}
+ridge.mod = glmnet(x[train,], y[train], alpha=0, lambda=grid, thresh=1e-12)
+ridge.pred = predict(ridge.mod, s=4, newx=x[test,])
+mean((ridge.pred-y.test)^2)
+#test MSE is 101037
+#using ridge regression has led to a much lower MSE than simply fitting a model with just intercept - 193253
+```
+
+#### least squares == ridge with lambda = 0; is there any benefit to performing ridge with lambda = 4 
+#over least squares?
+
+```` {r}
+ridge.pred = predict(ridge.mod, s=0, newx=x[test,], exact=T)
+mean((ridge.pred-y.test)^2) # MSE 114783 -- worse
+lm(y ~ x, subset=train)
+predict(ridge.mod, s=0, exact=T, type="coefficients")[1:20,]
+```
+
+#### better to use CROSS-VALIDATION to choose tuning parameter lambda
+
+``` {r}
+#cv.glmnet() = built-in cross-val, default 10-fold
+set.seed(1)
+cv.out = cv.glmnet(x[train,], y[train], alpha=0)
+plot(cv.out)
+bestlam = cv.out$lambda.min; bestlam #212
+
+# what is the test MSE assoc w/ lambda = 212?
+ridge.pred = predict(ridge.mod, s=bestlam, newx=x[test,])
+mean((ridge.pred-y.test)^2) #96015; great!
+```
+
+#### Finally, refit ridge regression model on full data set using lambda = 212
+``` {r}
+out = glmnet(x, y, alpha=0)
+predict(out, type="coefficients", s=bestlam)[1:20,]
+```
+
+## LASSO
+
+``` {r}
+lasso.mod = glmnet(x[train,], y[train], alpha=1, lambda=grid)
+plot(lasso.mod)
+#depending on tuning param, some coefs will be zero
+```
+
+cross-val
+
+``` {r}
+set.seed(1)
+cv.out = cv.glmnet(x[train,], y[train], alpha=1)
+plot(cv.out)
+bestlam = cv.out$lambda.min; bestlam #3.5
+lasso.pred = predict(lasso.mod, s=bestlam, newx=x[test,])
+mean((lasso.pred-y.test)^2) #MSE 100743
+```
+lasso MSE is significantly lower than null model and least squares, and is similar to ridge
+
+however, the resulting coefficient estimates are sparse. 12 of the 19 coefficient estimates are 
+zero! we are left with a more interpretable 7 variables in our model
+
+``` {r}
+out = glmnet(x ,y, alpha=1, lambda=grid)
+lasso.coef = predict(out, type="coefficients", s=bestlam)[1:20,]
+lasso.coef
+lasso.coef[lasso.coef != 0]
+```

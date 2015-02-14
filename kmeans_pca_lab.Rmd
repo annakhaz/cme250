@@ -1,0 +1,97 @@
+---
+title: "k-means and pca"
+author: "Anna Khazenzon"
+date: "February 13, 2015"
+output: html_document
+---
+
+#clustering lab, ISLR 10.4 & 10.5.1
+
+## k-means
+
+Simulate data with mean shift between first and second 25 obs.
+
+``` {r}
+set.seed(2)
+x = matrix(rnorm(50*2), ncol=2)
+x[1:25,1] = x[1:25,1] + 3
+x[1:25,2] = x[1:25,2] - 4
+```
+
+K-means with K = 2
+
+``` {r}
+km.out = kmeans(x, 2, nstart = 20)
+km.out$cluster
+plot(x, col=(km.out$cluster + 2), main="K-Means Clustering results with K=2", xlab="", ylab="", pch=20, cex=2)
+```
+
+K-means with K = 3
+
+``` {r}
+set.seed(4)
+km.out = kmeans(x, 3, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 2), main="K-Means Clustering results with K=3", xlab="", ylab="", pch=20, cex=2)
+```
+
+K-means with multiple initial cluster assignments
+
+``` {r}
+set.seed(3)
+km.out = kmeans(x, 3, nstart = 1)
+km.out$tot.withinss
+km.out = kmeans(x, 3, nstart = 20)
+km.out$tot.withinss
+```
+
+Higher nstart minimizes within-cluster sum of squares. Always run K-means with a large value of nstart (eg 20, 50) to avoid local optima.
+
+Setting the seed is important in order to be able to reproduce the initial cluster assignments.
+
+## PCA
+
+Examine data.
+
+``` {r}
+states = row.names(USArrests)
+states
+
+names(USArrests)
+
+apply(USArrests, 2, mean) # v diff means; 3x as many assaults as rapes
+apply(USArrests, 2, var) # v diff variance; not surprising, since nums not comparable; hint: need to scale! otherwise PCA driven by Assault
+```
+
+Perform PCA.
+
+``` {r}
+pr.out = prcomp(USArrests, scale=T)
+pr.out$center # mean of vars used for scaling
+pr.out$scale # sd of vars used for scaling
+pr.out$rotation # principal component loadings
+```
+
+There are min(n-1, p) informative principal components in a data set with n observations and p variables. 
+
+``` {r}
+dim(pr.out$x) #cols are principal component score vectors
+
+biplot(pr.out, scale=0)
+```
+
+``` {r}
+pr.out$sdev #sd of each principal component
+pr.var = pr.out$sdev^2
+pve = pr.var/sum(pr.var); pve # percent variance explained by each comp
+
+plot(pve, xlab = "Principal Component", ylab = "Proportion of Variance Explained", ylim = c(0,1), type = 'b')
+
+plot(cumsum(pve), xlab = "Principal Component", ylab = "Cumulative Proportion of Variance Explained", ylim = c(0,1), type = 'b')
+```
+
+
+
+
+
+
