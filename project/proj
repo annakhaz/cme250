@@ -1,0 +1,4 @@
+lasso is less flexible (sets number of coefficients equal to zero)
+lasso is more interpretable (final model has response var only related to small subset of predictors)
+
+chose bc many predictors seemed not to be correlated with age, didn't want overly flexible model to overfit data, and knew that a few predictors would be interpretable to understand the model.

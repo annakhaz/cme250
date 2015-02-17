@@ -1,0 +1,594 @@
+---
+title: "CME 250 HW"
+author: "Anna Khazenzon"
+date: "January 13, 2015"
+output: html_document
+---
+
+#Conceptual Exercises
+
+##(Introduction) section 2.4
+
+### Question 1
+
+#### Part a
+If the sample size n is extremely large, and the number of predictors p is small, we would expect a flexible method to work better. A flexible method is unlikely to overfit the data with a large n, and would instead better fit the data than an inflexible model would.
+
+#### Part b
+If the number of predictors p is extremely large, and the number of observations is small, we would expect an inflexible method to work better. A flexible method would likely overfit the data.
+
+#### Part c
+If the relationship between the predictors and response is highly
+non-linear, we would expect a flexible method to work better. Flexible methods are able to reveal more complex shapes than inflexible methods (such as linear regression).
+
+#### Part d
+If the variance of the error terms, i.e. σ2 = Var(), is extremely
+high, we would expect an inflexible method to work better. A flexible method would be likely to follow the errors too closely, and thus overfit the data.
+
+### Question 2
+Explain whether each scenario is a classification or regression problem,
+and indicate whether we are most interested in inference or prediction.
+Finally, provide n and p.
+
+#### Part a
+(a) We collect a set of data on the top 500 firms in the US. For each
+firm we record profit, number of employees, industry and the
+CEO salary. We are interested in understanding which factors
+affect CEO salary.
+
+Regression, inference
+
+n=500 (top firms)
+p=3 (profit, number of employes, industry)
+
+#### Part b
+(b) We are considering launching a new product and wish to know
+whether it will be a success or a failure. We collect data on 20
+similar products that were previously launched. For each product
+we have recorded whether it was a success or failure, price
+charged for the product, marketing budget, competition price,
+and ten other variables.
+
+Classification, prediction
+
+n=20 (similar products)
+p=13 (price charged, marketing budget, competition price, +10)
+
+#### Part c
+(c) We are interested in predicting the % change in the US dollar in
+relation to the weekly changes in the world stock markets. Hence
+we collect weekly data for all of 2012. For each week we record
+the % change in the dollar, the % change in the US market,
+the % change in the British market, and the % change in the German market.
+
+Regression, prediction
+
+n=52 (weeks)
+p=3 (% change in dollar, % change in US market, % change in British market, % change in German market)
+
+### Question 6
+
+Describe the differences between a parametric and a non-parametric
+statistical learning approach. What are the advantages of a parametric
+approach to regression or classification (as opposed to a nonparametric
+approach)? What are its disadvantages?
+
+A parametric statistical learning approach involves constructing a model that can be parameterized by a finite number of parameters. Parametric procedures rely on assumptions about the shape of the distribution in the underlying population, and about the form, or parameters, of the assumed distribution. On the other hand, a nonparametric model cannot be parameterized by a fixed number of parameters. 
+
+An advantage of nonparametric methods over parametric is that they can handle nonnormal data, because they do not rely on assumptions about the shape or form of the probability distribution from which the data are drawn. Using a parametric approach to analyze data which do not meet underlying assumptions can lead to misleading results.
+
+A disadvantage of nonparametric approaches is that they can be less powerful than their paramatric counterparts when the data truly are normally distributed, so there is greater incidence of Type II errors, or false negatives. A larger sample size will be necessary to rectify this issue. Another disadvantage is that results can be more difficult to interpret.
+
+More specifically, parametric statistical learning approaches involve a two-step model-based approach: first we make an assumption about the shape of the function $f$ to select a model, then we use training data to fit the model. This approach is called parametric because it reduces the problem of estimating the function down to one of estimating a set of parameters. An advantage of this approach is that it simplifies the problem of estimating $f$ with a set of parameters, rather than fitting an entirely arbitrary $f$. The disadvantage is that the model we choose might not match the true unknown form of $f$. To ameliorate this problem, we might fit a more flexible model, but this may lead to overfitting of the data (ie following the noise in the data too closely). 
+
+Nonparametric statistical learning approaches do not make explicit assumptions about the functional form of $f$, but rather seek an estimate for $f$ that is reasonably close. Without relying on assumptions, nonparametric approaches can accurately fit a wider range of possible shapes for $f$.
+
+##(Linear Regression)  section 3.7
+
+### Question 3
+
+Suppose we have a data set with five predictors, X1 = GPA, X2 = IQ,
+X3 = Gender (1 for Female and 0 for Male), X4 = Interaction between
+GPA and IQ, and X5 = Interaction between GPA and Gender. The
+response is starting salary after graduation (in thousands of dollars).
+Suppose we use least squares to fit the model, and get βˆ0 = 50, βˆ1 =
+20, βˆ2 = 0.07, βˆ3 = 35, βˆ4 = 0.01, βˆ5 = −10.
+(a) Which answer is correct, and why?
+i. For a fixed value of IQ and GPA, males earn more on average
+than females.
+ii. For a fixed value of IQ and GPA, females earn more on
+average than males.
+iii. For a fixed value of IQ and GPA, males earn more on average
+than females provided that the GPA is high enough.
+iv. For a fixed value of IQ and GPA, females earn more on
+average than males provided that the GPA is high enough.
+(b) Predict the salary of a female with IQ of 110 and a GPA of 4.0.
+
+#### Part a
+
+iii. For a fixed value of IQ and GPA, males earn more on average than females provided that the GPA is high enough.
+
+Even with a fixed value of IQ and GPA, because of the interaction effect between GPA and gender, males earn more on average than females at a high GPA, eg a 4.0.
+
+#### Part b
+
+$$y = 50 + 20*4 + .07*110 + 35*1 + .01*110*4 + (-10)*4*1 = 137.1$$
+
+The predicted starting salary for a female with IQ 110 and GPA 4.0 is $137,100.
+
+##(Logistic Regression) section 4.7
+
+### Question 8
+
+Suppose that we take a data set, divide it into equally-sized training
+and test sets, and then try out two different classification procedures.
+First we use logistic regression and get an error rate of 20 % on the
+training data and 30 % on the test data. Next we use 1-nearest neighbors
+(i.e. K = 1) and get an average error rate (averaged over both
+test and training data sets) of 18 %. Based on these results, which
+method should we prefer to use for classification of new observations?
+Why?
+
+Based on these results, we should prefer to use logistic regression for classification. Even though 1-nearest neighbors has a lower average error rate than either training or test error rates for logistic regression, this is misleading, because 1-nearest neighbors is drastically overfitting the data. It is unlikely that it would do well on a training set. The classifier likely had 0% error at training, and 36% error at test, because the decision boundary is fit closely to every single data point, and would not generalize well to other data.
+
+##(Regularization) section 6.8
+
+### Question 2
+
+
+indicate which of i. through iv. is correct.
+Justify your answer.
+(a) The lasso, relative to least squares, is:
+
+i. More flexible and hence will give improved prediction accuracy
+when its increase in bias is less than its decrease in
+variance.
+ii. More flexible and hence will give improved prediction accuracy
+when its increase in variance is less than its decrease
+in bias.
+iii. Less flexible and hence will give improved prediction accuracy
+when its increase in bias is less than its decrease in
+variance.
+iv. Less flexible and hence will give improved prediction accuracy
+when its increase in variance is less than its decrease
+in bias.
+
+#### Part a
+
+The lasso, relative to least squares, is less flexible and hence will give improved prediction accuracy when its increase in bias is less than its decrease in variance.
+
+#### Part b
+
+Ridge regression, relative to least squares, is less flexible and hence will give improved prediction accuracy when its increase in bias is less than its decrease in variance.
+
+##(Clustering) section 10.7
+
+### Question 3
+
+##(Cross-validation) section 5.4
+
+### Question 3
+
+LOOCV = leave one out cross val
+
+##(Trees, CART) section 8.4
+
+### Question 4
+
+##(SVM) section 9.7
+
+### Question 3
+
+#Applied Exercises
+
+``` {r load packages}
+library(ggplot2)
+```
+##(Introduction) section 2.4
+
+### Question 9 
+
+#### Part a
+
+``` {r load auto data}
+a <- read.csv("http://www-bcf.usc.edu/~gareth/ISL/Auto.csv", header=T)
+```
+
+Quantitative parts of the predictors: mpg, cylinders(?), displacement, weight, acceleration, year(?)
+Qualitative parts of the predictors: origin(?), name, horsepower(?)
+
+#### Part b
+
+Range of quantitative predictors:
+
+```{r} 
+summary(a)
+```
+
+mpg: 9-46.6
+cylinders: 3-8
+displacement: 68-455
+weight: 1613-5140
+acceleration: 8-24.8
+year: 70-82
+
+#### Part c
+
+Mean and standard deviation of quantitative predictors:
+
+```{r echo=FALSE}
+print("mean mpg: ", quote=FALSE)
+mean(a$mpg)
+print("mpg sd: ", quote=FALSE)
+sd(a$mpg)
+
+print("mean cylinders: ", quote=FALSE)
+mean(a$cylinders)
+print("cylinders sd: ", quote=FALSE)
+sd(a$cylinders)
+
+print("mean displacement: ", quote=FALSE)
+mean(a$displacement)
+print("displacement sd: ", quote=FALSE)
+sd(a$displacement)
+
+print("mean weight: ", quote=FALSE)
+mean(a$weight)
+print("weight sd: ", quote=FALSE)
+sd(a$weight)
+
+print("mean acceleration: ", quote=FALSE)
+mean(a$acceleration)
+print("acceleration sd: ", quote=FALSE)
+sd(a$acceleration)
+
+print("mean year: ", quote=FALSE)
+mean(a$year)
+print("year sd: ", quote=FALSE)
+sd(a$year)
+```
+
+#### Part d
+
+```{r}
+#remove 10th-85th obs
+a_subset <- a[10:85,]
+
+#range & mean
+summary(a_subset)
+
+#sd
+sd(a_subset$mpg)
+sd(a_subset$cylinders)
+sd(a_subset$displacement)
+sd(a_subset$weight)
+sd(a_subset$acceleration)
+sd(a_subset$year)
+
+```
+
+#### Part e
+
+``` {r}
+#plot data (scatter)
+ggplot(a,aes(x=year,y=mpg)) + geom_point() + stat_smooth(method="lm")
+
+ggplot(a,aes(x=acceleration,y=mpg)) + geom_point() + stat_smooth(method="lm")
+
+ggplot(a,aes(x=weight,y=mpg)) + geom_point() + stat_smooth(method="lm")
+
+ggplot(a,aes(x=displacement,y=mpg)) + geom_point() + stat_smooth(method="lm")
+
+ggplot(a,aes(x=cylinders,y=mpg)) + geom_point() + stat_smooth(method="lm")
+
+ggplot(a,aes(x=horsepower,y=mpg)) + geom_point()  # what should i do here
+
+ggplot(a,aes(x=origin,y=mpg)) + geom_bar(stat="identity")
+
+
+```
+
+Comments on findings.
+
+#### Part f
+
+The plots of effect of year on mpg suggests that more recent models of cars have higher miles per gallon, because we see an increasing slope across time.
+acceleration
+
+The plot of the effect of weight on mpg suggests that heavier cars have lower miles per gallon. This is plausible, since it would take more gasoline to move a heavier car.
+
+##(Linear Regression)  section 3.7
+
+### Question 9
+
+#### Part a
+``` {r}
+pairs(a)
+```
+
+#### Part b
+``` {r}
+a_num <- a[,1:7]
+a_num$horsepower <- as.numeric(a_num$horsepower)
+cor(a_num)
+```
+
+#### Part c
+
+``` {r}
+rs <- lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year, data=a_num)
+summary(rs)
+```
+
+There is a significant negative relationship between a car's weight and its mpg, _t_(390)=-11.43, _p_<.001. Converseley, there is a significant positive relationship between the year a car was made and its mpg, meaning modern cars have higher mpg, _t_(390)=15.025, _p_<.001
+
+#### Part d
+
+``` {r}
+#diagnostic plots of linear reg fit
+plot(rs)
+```
+
+The residual plot shows heteroscedasticity, as there is a dependency between the residuals and the fitted values, indicating that our data could be fit better with another model. Data points 323, 326, and 327 appear to be large outliers, and the leverage plot seems to identify point 14 as having unusually high leverage.
+
+#### Part e
+
+``` {r}
+# * vs : for interaction
+# try a few interactions. are any signif?
+```
+
+#### Part f
+
+``` {r}
+# transform data
+# log(x)
+# sqrt(x)
+# x^2
+# comment on findings
+```
+
+### Question 13
+
+#### Part a
+
+``` {r}
+set.seed(1)
+
+x <- rnorm(n = 100, mean = 0, sd = 1)
+```
+
+#### Part b
+
+``` {r}
+eps <- rnorm(n = 100, mean = 0, sd = .25)
+```
+
+#### Part c
+
+``` {r}
+y <- -1 + .5 * x + eps
+```
+
+Vector y has length 100; there are as many values of y as there are of x. In this linear model B0 is -1, and B1 is 0.5.
+
+#### Part d
+
+``` {r}
+plot(x, y)
+```
+
+There appears to be a strong positive linear relationship between x and y. 
+
+#### Part e
+
+``` {r}
+rs <- lm(y ~ x)
+summary(rs)
+```
+
+The observed least squares linear model shows a highly significant positive relationship between x and y. In this model, B0 is -1.01 and B1 is .500, nearly identical to the B0 and B1 above.
+
+#### Part f
+
+``` {r}
+plot(x, y)
+abline(rs)
+abline(a = -1, b = .5, col = "red")
+```
+
+What's the difference between a least squares and population regression line?
+
+#### Part g
+
+``` {r}
+rs_poly <- lm(y ~ poly(x,2))
+summary(rs_poly)
+
+anova(rs, rs_poly)
+```
+
+There is no evidence that the quadratic term improves the model fit. The quadratic term $x^2$ is not significantly predictive of $y$, _t_(97) = -1.40), _p_ = 0.164. When comparing the linear and polynomial models directly, we find that the model is not significantly improved, _F_(1, 97) = 1.97, _p_ = 0.164.
+
+##(Regularization and Cross-validation) section 6.8
+
+### Question 9
+
+#### Part a
+
+``` {r}
+library(glmnet)
+library(ISLR)
+
+#going to predict number applications received given other factors
+
+
+College = College[,-1]
+x = model.matrix(Apps ~ ., College)[,-1]
+y = College$Apps
+dim(College) # 777 rows, 18 cols
+
+#split into training/test
+set.seed(1)
+train = sample(1:nrow(x), nrow(x)/2)
+test = (-train)
+y.test = y[test]
+```
+
+#### Part b
+
+``` {r}
+summary(lm(y ~ x, subset = train))
+lm.mod = glmnet(x[train,], y[train], alpha=0, lambda=0, thresh=1e-12)
+lm.pred = predict(lm.mod, s=0, newx=x[test,], exact=T)
+mean((lm.pred-y.test)^2) #1075351
+```
+
+The test error obtained by fitting a linear model using least squares on the training set is 1075351.
+
+#### Part c
+
+``` {r}
+grid = 10^seq(10,-2,length=100) 
+ridge.mod = glmnet(x[train,], y[train], alpha=0, lambda=grid, thresh=1e-12)
+plot(ridge.mod)
+
+set.seed(1)
+cv.out = cv.glmnet(x[train,], y[train], alpha=0)
+plot(cv.out)
+bestlam = cv.out$lambda.min; bestlam #411
+
+# what is the test MSE assoc w/ lambda = 411?
+ridge.pred = predict(ridge.mod, s=bestlam, newx=x[test,])
+mean((ridge.pred-y.test)^2) #1043745
+```
+
+With a λ of 411 chosen by cross-validation, we fit a ridge regression model on the training set, and obtain test error 1043745, lower than the MSE of our linear model using least squares.
+
+#### Part d
+
+(d) Fit a lasso model on the training set, with λ chosen by crossvalidation.
+Report the test error obtained, along with the number
+of non-zero coefficient estimates.
+
+``` {r}
+lasso.mod = glmnet(x[train,], y[train], alpha=1, lambda=grid)
+plot(lasso.mod)
+
+set.seed(1)
+cv.out = cv.glmnet(x[train,], y[train], alpha=1)
+plot(cv.out)
+bestlam = cv.out$lambda.min; bestlam #27
+lasso.pred = predict(lasso.mod, s=bestlam, newx=x[test,])
+mean((lasso.pred-y.test)^2) #MSE 104082
+
+out = glmnet(x ,y, alpha=1, lambda=grid)
+lasso.coef = predict(out, type="coefficients", s=bestlam)[1:17,]
+lasso.coef
+lasso.coef[lasso.coef != 0]
+```
+
+Using a LASSO model with a λ of 27 chosen by cross-validation, we obtain a slightly lower test error -- 104082. However, we now have fewer non-zero coefficient estimates -- 14 instead of 17.
+
+##(Clustering and PCA) section 10.7
+
+### Question 10
+
+see section 10.5.1 R tutorial lab 2 for walk-through of clustering, section 10.4 R tutorial lab 1 for PCA
+
+#### Part a
+
+``` {r}
+set.seed(3)
+x = matrix(rnorm(60*2), ncol=2)
+x[1:20,1] = x[1:20,1] + 6
+x[1:20,2] = x[1:20,2] - 1
+x[21:40,1] = x[21:40,1] - 7
+x[21:40,2] = x[21:40,2] + 3
+x[41:60,2] = x[41:60,2] - 5
+
+plot(x)
+```
+
+#### Part b
+
+``` {r}
+x_clus = c(rep(1,20), rep(2,20), rep(3,20))
+pr.out = prcomp(x)
+biplot(pr.out)
+plot(predict(pr.out), col=x_clus)
+```
+
+#### Part c
+
+``` {r}
+set.seed(4)
+km.out = kmeans(x, 3, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 1), main="K-Means Clustering results with K=3", xlab="", ylab="", pch=20, cex=2)
+```
+
+The K-means cluster labels are identical to the true class labels.
+
+#### Part d
+
+``` {r}
+set.seed(4)
+km.out = kmeans(x, 2, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 1), main="K-Means Clustering results with K=2", xlab="", ylab="", pch=20, cex=2)
+```
+
+With K = 2, K-means clustering now clusters the two closest clusters  together.
+
+#### Part e
+
+``` {r}
+set.seed(4)
+km.out = kmeans(x, 4, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 1), main="K-Means Clustering results with K=4", xlab="", ylab="", pch=20, cex=2)
+```
+
+With K = 4, K-means clustering still clusters two of the true clusters correctly, but it splits one cluster into two based on a boundary on the y-axis. 
+
+#### Part f
+
+
+``` {r}
+set.seed(4)
+km.out = kmeans(pr.out$x, 3, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 1), main="K-Means Clustering results with K=3", xlab="", ylab="", pch=20, cex=2)
+```
+
+The results for K-means clustering with K = 3 on the first two principal component score vectors is identical to that with the raw data, because the principal component score vectors perfectly labeled the three clusters.
+
+#### Part g
+
+``` {r}
+set.seed(4)
+km.out = kmeans(scale(x, scale=T), 3, nstart = 20)
+km.out
+plot(x, col=(km.out$cluster + 1), main="K-Means Clustering results with K=3, scaled", xlab="", ylab="", pch=20, cex=2)
+```
+
+Results appear similar to those obtained in (b). Because our data were drawn from a normal distribution with an SD of 1, it is unsurprising that clustering should not change upon scaling.
+
+##(Cross-validation) section 5.4
+
+### Question 8(a-e)
+
+see R tuts 5.3.1, 5.3.2, 5.3,3
+
+##(CART and Random Forests) section 8.4
+
+### Question 8
+
+See R tutorial (Lab 2: Fitting Regression Trees) in section 8.3.2 and (Lab 3: Bagging and Random )
+
+##(SVM) section 9.7
+
+### Question 4
+
+See R tutorials in sections 9.6.1 and section 9.6.2 for support vector classifier/machine. For Matlab users, refer to documentation for svmtrain. 

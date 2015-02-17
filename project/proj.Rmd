@@ -4,3 +4,93 @@ author: "Anna Khazenzon"
 date: "February 14, 2015"
 output: html_document
 ---
+
+Load and summarize data.
+``` {r}
+dataforFitting=read.csv("dataforFitting.csv") #65 of 95
+predictThese=read.csv("predictThese.csv") #30
+predictionIDs = predictThese[,1]
+summary(dataforFitting) 
+
+```
+
+Impute NAs.
+``` {r}
+# NAs: height-1, fb-1, cred-1, contact-1
+
+# missing completely at random?
+# check index of NAs - all same person? prob not a problem bc so few
+unique (unlist (lapply (dataforFitting, function (x) which (is.na (x))))) #60 55 64 65 - all diff ppl
+
+# KNN to convergence w/impute
+dataforFitting$Height = with(dataforFitting, impute(Height, median))
+dataforFitting$Fbfriends = with(dataforFitting, impute(Fbfriends, median))
+dataforFitting$Credits = with(dataforFitting, impute(Credits, median))
+dataforFitting$Contacts = with(dataforFitting, impute(Contacts, median))
+```
+
+Explore data.
+``` {r}
+pairs(dataforFitting[,2:5])
+pairs(dataforFitting[,c(2,6:8)])
+pairs(dataforFitting[,c(2,9:11)])
+pairs(dataforFitting[,c(2,12:14)])
+pairs(dataforFitting[,c(2,15:16)])
+
+cor(dataforFitting[sapply(dataforFitting, class) != "factor"])
+# Age most corr'd w/ Contacts, News, Emails, Credits, somewhat corr'd w/Exercise, Fbfriends, Siblings
+```
+
+``` {r}
+library(glmnet)
+
+#going to predict number age given other factors
+
+rownames(dataforFitting) = dataforFitting[,1]
+dataforFitting = dataforFitting[,-1]
+x = model.matrix(Age ~ ., dataforFitting)[,-1]
+y = dataforFitting$Age
+dim(dataforFitting) # 65 rows, 15 cols
+
+#split into training/test
+set.seed(1)
+train = sample(1:nrow(x), nrow(x)/2)
+test = (-train)
+y.test = y[test]
+```
+
+LASSO regression.
+``` {r}
+lasso.mod = glmnet(x[train,], y[train], alpha=1, lambda=grid)
+plot(lasso.mod)
+
+set.seed(1)
+cv.out = cv.glmnet(x[train,], y[train], alpha=1)
+plot(cv.out)
+bestlam = cv.out$lambda.min; bestlam #.75
+lasso.pred = predict(lasso.mod, s=bestlam, newx=x[test,])
+mean((lasso.pred-y.test)^2) #MSE 19.2
+
+lasso.out = glmnet(x ,y, alpha=1, lambda=grid)
+lasso.coef = predict(lasso.out, type="coefficients", s=bestlam)[1:17,]
+lasso.coef
+lasso.coef[lasso.coef != 0] # fbfriends, credits, contacts, news, emails; credits appears to be strongest predictor of age
+```
+
+Align types if necessary.
+``` {r}
+allTogether=rbind(dataforFitting[,-1],predictThese[,-1])  
+predictThese = allTogether[66:95,]
+
+x_test = model.matrix( ~ ., predictThese)[,-1]
+
+agePredictions = predict(lasso.out, newx=x_test, s=bestlam)
+myPredictions = cbind(predictionIDs, round(agePredictions,0))
+colnames(myPredictions) = c("ID","Age")
+```
+
+Save predictions.
+``` {r}
+write.csv(myPredictions,"myPredictions.csv",row.names=FALSE) 
+```
+
